@@ -1,0 +1,30 @@
+{
+  "name": "@korusbyanthm/ksrt",
+  "version": "0.0.1",
+  "description": "KSRT file parser",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "srt",
+    "ksrt",
+    "ksrtl",
+    "lyrics",
+    "korus",
+    "api",
+    "parser"
+  ],
+  "author": "Ramon from Anthm",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@types/srtparsejs": "^1.0.0",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@korusbyanthm/regex": "^2.1.3",
+    "srt-validator": "^6.0.3",
+    "srtparsejs": "^1.0.8"
+  }
+}
