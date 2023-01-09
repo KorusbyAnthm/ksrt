@@ -1,3 +1,4 @@
+# NOT READY
 # KSRT
 ...Or **Korus SubRip (Extended)** is a file format extending the SRT (SubRip) file format with anotations and notes as well as support for karaoke.
 
