@@ -8,7 +8,7 @@ import * as srtParser from "srtparsejs";
 import { KSRTArray } from './types';
 
 // Korus
-import regex from "@korusbyanthm/regex";
+import regex, { data } from "@korusbyanthm/regex";
 
 const removeComments = (src: string) => src.replace(/((?<!\\)#.{0,})\n/gi, "");
 
@@ -60,37 +60,22 @@ export class KSRT {
 
             // Split the text into lines (containing KSRT data and annotations)
             for (let textLine of srt.text.split("\n")) {
-                // Split into argument and value (won't be used when treated as just text)
-                const [_arg, val] = textLine.split(/\s/, 2);
-                const arg = _arg.replace(/^(:|!)/, "");
+                const dataTarget = 
+                    // If the line starts with a colon (:) and is not preceeded by a \, it's data
+                    textLine.match(/^(?<!\\):/gim) ? datas : 
+                    // If the line starts with an exclamation mark (!) and is not proceeded by a \, it's an annotation
+                    textLine.match(/^(?<!\\)!/gim) ? annotations : 
+                    null;
 
-                console.log(textLine, arg, val)
-
-                if (textLine.match(/(?<!\\):/gim)) {
-                    // Handle data
-                    datas[arg] = 
-                        // Check if there is a value
-                        val?.length >= 1?
-                        // Split with ', '
-                        val.split(/,\s/)
-                        // Cast to a number if it's not an ID
-                        .map(val => !regex.id(val) ? Number(val) ?? val : val) : 
-                        // Use a true boolean if no value is provided
-                        true;
-                } else if (textLine.match(/(?<!\\)!/gim)) {
-                    // Handle annotations
-                    annotations[arg] = 
-                        // Check if there is a valud
-                        val?.length >= 1?
-                        // Split with ', '
-                        val.split(/,\s/)
-                        // Cast to a number if it's not an ID
-                        .map(val => !regex.id(val) ? Number(val) ?? val : val) : 
-                        // Use a true boolean if no value is provided
-                        true;
+                if (dataTarget) {
+                    // Replace the start prefix of the line (arg)
+                    const line = `${textLine.replace(/^(?<!\\):|!/, "")}`;
+                    const [arg, ...vals] = line.split(" ");
+                    const realVals = vals.map(val => val.replace(/,$/gim, ""));
+                    dataTarget[arg] = realVals.length > 1 ? realVals : realVals[0] ?? true;
                 } else if (textLine.match(/(?<!\\)&/gim)) {
                     // Handle note
-                    note += `${textLine.replace(/^&/, "")}\n`;
+                    note += `${textLine.replace(/^&\s/, "")}\n`;
                 } else {
                     // Handle just text
                     text += `${textLine}\n`;
@@ -102,7 +87,7 @@ export class KSRT {
                 endTime: srt.endTime,
                 id: Number(srt.id),
                 startTime: srt.startTime,
-                text,
+                text: text.replace(/\n$/im, ""),
                 note,
                 ...datas,
                 ...annotations,

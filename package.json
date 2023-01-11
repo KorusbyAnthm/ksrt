@@ -23,7 +23,7 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "@korusbyanthm/regex": "^2.1.3",
+    "@korusbyanthm/regex": "latest",
     "srt-validator": "^6.0.3",
     "srtparsejs": "^1.0.8"
   }
