@@ -9,3 +9,7 @@ const fd = fs.readFileSync(path.join(__dirname, "./test.ksrtx"), {encoding: "utf
 const data = KSRT.parse(fd);
 
 console.log(data.ksrtData)
+
+const stringified = data.stringify();
+
+console.log(stringified);

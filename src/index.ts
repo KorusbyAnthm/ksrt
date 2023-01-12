@@ -49,7 +49,7 @@ export class KSRT {
         // Parse the KSRT data
         for (let srt of this.srtArray) {
             // Create datas and annotations objects
-            const datas = {};
+            const data = {};
             const annotations = {};
 
             // Create base text where text from the lyrics can be added
@@ -62,7 +62,7 @@ export class KSRT {
             for (let textLine of srt.text.split("\n")) {
                 const dataTarget = 
                     // If the line starts with a colon (:) and is not preceeded by a \, it's data
-                    textLine.match(/^(?<!\\):/gim) ? datas : 
+                    textLine.match(/^(?<!\\):/gim) ? data : 
                     // If the line starts with an exclamation mark (!) and is not proceeded by a \, it's an annotation
                     textLine.match(/^(?<!\\)!/gim) ? annotations : 
                     null;
@@ -71,7 +71,7 @@ export class KSRT {
                     // Replace the start prefix of the line (arg)
                     const line = `${textLine.replace(/^(?<!\\):|!/, "")}`;
                     const [arg, ...vals] = line.split(" ");
-                    const realVals = vals.map(val => val.replace(/,$/gim, ""));
+                    const realVals = vals.map(val => val.replace(/,$/gim, "")).map(val => !regex.id(val) ? isNaN(Number(val)) ? val : Number(val) : val);
                     dataTarget[arg] = realVals.length > 1 ? realVals : realVals[0] ?? true;
                 } else if (textLine.match(/(?<!\\)&/gim)) {
                     // Handle note
@@ -89,17 +89,54 @@ export class KSRT {
                 startTime: srt.startTime,
                 text: text.replace(/\n$/im, ""),
                 note,
-                ...datas,
-                ...annotations,
+                data,
+                annotations,
             });
         };
     };
 
     /**
-     * Stringify the data back into an SRT file
+     * Stringify the data back into an SRT string
      */
     stringify(): string {
-        return srtParser.toSrt(this.srtArray)
+        // Create result string
+        let res = "";
+
+        // Stringify each KSRT script
+        for (let ksrt of this.ksrtData) {
+            // Add the stringified id
+            res += `${ksrt.id.toString()}\n`;
+
+            // Add the start and end times
+            res += `${ksrt.startTime} --> ${ksrt.endTime}\n`;
+            
+            // Create text string where text, datas, notes and annotations will be added
+            let text = "";
+
+            // Add the text if any
+            text += ksrt.text ? `${ksrt.text}\n` : "";
+            
+            // Add the note to the text
+            text += ksrt.note ? `& ${ksrt.note}\n` : "";
+
+            // Encode data into a string and add it to the text
+            for (let [arg, val] of Object.entries(ksrt.data)) {
+                text += `:${arg} ${Array.isArray(val) ? val.join(", ") : val === true ? "" : val}\n`;
+            };
+
+            // Encode annotations into a string and add it to the text
+            for (let [arg, val] of Object.entries(ksrt.annotations)) {
+                text += `!${arg} ${Array.isArray(val) ? val.join(", ") : val === true ? "" : val}\n`;
+            };
+
+            // Add a final new line to the text to separate from other scripts
+            text += "\n"
+
+            // Add the text to the result
+            res += text;
+        };
+
+        return res;
     };
 };
 

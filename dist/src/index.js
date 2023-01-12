@@ -43,6 +43,7 @@ const defaultKSRTOptions = {
  */
 class KSRT {
     constructor(src, options) {
+        var _a;
         this.ksrtData = [];
         this.options = defaultKSRTOptions;
         // Set the options and src string
@@ -57,7 +58,7 @@ class KSRT {
         // Parse the KSRT data
         for (let srt of this.srtArray) {
             // Create datas and annotations objects
-            const datas = {};
+            const data = {};
             const annotations = {};
             // Create base text where text from the lyrics can be added
             let text = "";
@@ -65,37 +66,22 @@ class KSRT {
             let note = "";
             // Split the text into lines (containing KSRT data and annotations)
             for (let textLine of srt.text.split("\n")) {
-                // Split into argument and value (won't be used when treated as just text)
-                const [_arg, val] = textLine.split(/\s/, 2);
-                const arg = _arg.replace(/^(:|!)/, "");
-                console.log(textLine, arg, val);
-                if (textLine.match(/(?<!\\):/gim)) {
-                    // Handle data
-                    datas[arg] =
-                        // Check if there is a value
-                        (val === null || val === void 0 ? void 0 : val.length) >= 1 ?
-                            // Split with ', '
-                            val.split(/,\s/)
-                                // Cast to a number if it's not an ID
-                                .map(val => { var _a; return !regex_1.default.id(val) ? (_a = Number(val)) !== null && _a !== void 0 ? _a : val : val; }) :
-                            // Use a true boolean if no value is provided
-                            true;
-                }
-                else if (textLine.match(/(?<!\\)!/gim)) {
-                    // Handle annotations
-                    annotations[arg] =
-                        // Check if there is a valud
-                        (val === null || val === void 0 ? void 0 : val.length) >= 1 ?
-                            // Split with ', '
-                            val.split(/,\s/)
-                                // Cast to a number if it's not an ID
-                                .map(val => { var _a; return !regex_1.default.id(val) ? (_a = Number(val)) !== null && _a !== void 0 ? _a : val : val; }) :
-                            // Use a true boolean if no value is provided
-                            true;
+                const dataTarget = 
+                // If the line starts with a colon (:) and is not preceeded by a \, it's data
+                textLine.match(/^(?<!\\):/gim) ? data :
+                    // If the line starts with an exclamation mark (!) and is not proceeded by a \, it's an annotation
+                    textLine.match(/^(?<!\\)!/gim) ? annotations :
+                        null;
+                if (dataTarget) {
+                    // Replace the start prefix of the line (arg)
+                    const line = `${textLine.replace(/^(?<!\\):|!/, "")}`;
+                    const [arg, ...vals] = line.split(" ");
+                    const realVals = vals.map(val => val.replace(/,$/gim, "")).map(val => !regex_1.default.id(val) ? isNaN(Number(val)) ? val : Number(val) : val);
+                    dataTarget[arg] = realVals.length > 1 ? realVals : (_a = realVals[0]) !== null && _a !== void 0 ? _a : true;
                 }
                 else if (textLine.match(/(?<!\\)&/gim)) {
                     // Handle note
-                    note += `${textLine.replace(/^&/, "")}\n`;
+                    note += `${textLine.replace(/^&\s/, "")}\n`;
                 }
                 else {
                     // Handle just text
@@ -105,17 +91,54 @@ class KSRT {
             }
             ;
             // Add the data to the array
-            this.ksrtData.push(Object.assign(Object.assign({ endTime: srt.endTime, id: Number(srt.id), startTime: srt.startTime, text,
-                note }, datas), annotations));
+            this.ksrtData.push({
+                endTime: srt.endTime,
+                id: Number(srt.id),
+                startTime: srt.startTime,
+                text: text.replace(/\n$/im, ""),
+                note,
+                data,
+                annotations,
+            });
         }
         ;
     }
     ;
     /**
-     * Stringify the data back into an SRT file
+     * Stringify the data back into an SRT string
      */
     stringify() {
-        return srtParser.toSrt(this.srtArray);
+        // Create result string
+        let res = "";
+        // Stringify each KSRT script
+        for (let ksrt of this.ksrtData) {
+            // Add the stringified id
+            res += `${ksrt.id.toString()}\n`;
+            // Add the start and end times
+            res += `${ksrt.startTime} --> ${ksrt.endTime}\n`;
+            // Create text string where text, datas, notes and annotations will be added
+            let text = "";
+            // Add the text if any
+            text += ksrt.text ? `${ksrt.text}\n` : "";
+            // Add the note to the text
+            text += ksrt.note ? `& ${ksrt.note}\n` : "";
+            // Encode data into a string and add it to the text
+            for (let [arg, val] of Object.entries(ksrt.data)) {
+                text += `:${arg} ${Array.isArray(val) ? val.join(", ") : val === true ? "" : val}\n`;
+            }
+            ;
+            // Encode annotations into a string and add it to the text
+            for (let [arg, val] of Object.entries(ksrt.annotations)) {
+                text += `!${arg} ${Array.isArray(val) ? val.join(", ") : val === true ? "" : val}\n`;
+            }
+            ;
+            // Add a final new line to the text to separate from other scripts
+            text += "\n";
+            // Add the text to the result
+            res += text;
+        }
+        ;
+        return res;
     }
     ;
 }

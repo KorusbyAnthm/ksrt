@@ -6,6 +6,8 @@
         "esModuleInterop": true,
         "module": "CommonJS",
         "allowJs": true,
+        "removeComments": true,
+        "incremental": true,
         "allowSyntheticDefaultImports": true
     }
 }

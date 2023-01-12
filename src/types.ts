@@ -52,10 +52,12 @@ export interface KSRTAnnotationMap {
     instrumental?: boolean;
 };
 
-export type KSRTArray = KSRTAnnotationMap & KSRTDataMap & {
+export interface KSRTArray {
     endTime: string;
     id: number;
     startTime: string;
     text: string;
     note?: string;
+    data: KSRTDataMap;
+    annotations: KSRTAnnotationMap;
 };

@@ -10,3 +10,5 @@ const fd = node_fs_1.default.readFileSync(node_path_1.default.join(__dirname, ".
 // const data = srtParser.parse(fd);
 const data = src_1.default.parse(fd);
 console.log(data.ksrtData);
+const stringified = data.stringify();
+console.log(stringified);
