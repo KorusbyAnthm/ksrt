@@ -8,7 +8,7 @@ import * as srtParser from "srtparsejs";
 import { KSRTArray } from './types';
 
 // Korus
-import regex, { data } from "@korusbyanthm/regex";
+import regex from "@korusbyanthm/regex";
 
 const removeComments = (src: string) => src.replace(/((?<!\\)#.{0,})\n/gi, "");
 
@@ -25,21 +25,43 @@ const defaultKSRTOptions = {
 export class KSRT {
     src: string;
 
-    srtArray: srtParser.srtArray[];
+    srtArray: srtParser.srtArray[] = [];
     ksrtData: KSRTArray[] = [];
 
     player: srtParser.srtPlayer;
 
     options = defaultKSRTOptions;
-    errors: (ParseError | ValidationError)[];
+    errors: (ParseError | ValidationError)[] = [];
 
-    constructor(src: string, options?: typeof defaultKSRTOptions) {
+    constructor(src?: string, options?: typeof defaultKSRTOptions) {
         // Set the options and src string
         this.options = {...this.options, ...options};
         this.src = src;
+        src && this.parse();
+    };
 
+    /**
+     * Add a new KSRT to the data
+     * 
+     */
+    add(...ksrt: KSRTArray[]) {
+        // Use correct IDs
+        for (let [index, srt] of ksrt.entries())
+            srt.id = this.ksrtData.length + index;
+
+        // Add the data
+        this.ksrtData.push(...ksrt);
+
+        // Return new data
+        return this.ksrtData;
+    };
+
+    /**
+     * Parse the SRT string into an object
+     */
+    parse(src?: string) {
         // Filter the data and normalize it
-        let filteredData = src;
+        let filteredData = src ?? this.src;
         filteredData = this.options.removeComments ? removeComments(filteredData) : filteredData;
         filteredData = filteredData.normalize("NFC");
 
