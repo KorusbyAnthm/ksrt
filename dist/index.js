@@ -149,6 +149,7 @@ exports.fromGenius = fromGenius;
 const ksrt = {
     KSRT,
     parse: exports.parse,
-    stringify: exports.stringify
+    stringify: exports.stringify,
+    fromGenius: exports.fromGenius
 };
 exports.default = ksrt;

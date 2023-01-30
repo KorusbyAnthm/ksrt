@@ -26,5 +26,6 @@ declare const ksrt: {
     KSRT: typeof KSRT;
     parse: (src: string) => KSRT;
     stringify: (ksrt: KSRT) => string;
+    fromGenius: (geniusLyrics: string) => KSRT;
 };
 export default ksrt;

@@ -221,6 +221,7 @@ export const fromGenius = (geniusLyrics: string): KSRT => {
 const ksrt = {
     KSRT,
     parse,
-    stringify
+    stringify,
+    fromGenius
 };
 export default ksrt;
