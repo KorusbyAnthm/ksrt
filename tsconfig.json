@@ -9,6 +9,10 @@
         "incremental": true,
         "allowSyntheticDefaultImports": true,
         "outDir": "./dist",
-        "declaration": true
-    }
+        "declaration": true,
+    },
+    "exclude": [
+        "./test/**",
+        "./dist/**"
+    ]
 }
