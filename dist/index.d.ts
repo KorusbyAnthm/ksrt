@@ -21,9 +21,10 @@ export declare class KSRT {
 }
 export declare const parse: (src: string) => KSRT;
 export declare const stringify: (ksrt: KSRT) => string;
-declare const _default: {
+export declare const fromGenius: (geniusLyrics: string) => KSRT;
+declare const ksrt: {
     KSRT: typeof KSRT;
     parse: (src: string) => KSRT;
     stringify: (ksrt: KSRT) => string;
 };
-export default _default;
+export default ksrt;

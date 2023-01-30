@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stringify = exports.parse = exports.KSRT = void 0;
+exports.fromGenius = exports.stringify = exports.parse = exports.KSRT = void 0;
 const srtParser = __importStar(require("srtparsejs"));
 const regex_1 = __importDefault(require("@korusbyanthm/regex"));
 const removeComments = (src) => src.replace(/((?<!\\)#.{0,})\n/gi, "");
@@ -124,4 +124,31 @@ const parse = (src) => new KSRT(src);
 exports.parse = parse;
 const stringify = (ksrt) => ksrt.stringify();
 exports.stringify = stringify;
-exports.default = { KSRT, parse: exports.parse, stringify: exports.stringify };
+const fromGenius = (geniusLyrics) => {
+    const res = new KSRT();
+    const lyricLines = geniusLyrics.split(/\n/gim);
+    for (let [index, lyricLine] of lyricLines.entries()) {
+        if (lyricLine.startsWith("[") ||
+            !lyricLine.match(/./gim))
+            continue;
+        res.add({
+            id: index,
+            text: lyricLine,
+            startTime: "00:00:00,00",
+            endTime: "00:00:00,00",
+            data: {},
+            annotations: Object.assign({}, (lyricLines[index - 1].startsWith("[") ? {
+                part: lyricLines[index - 1].replace(/^\[|\]$/gi, "").toLowerCase()
+            } : {}))
+        });
+    }
+    ;
+    return res;
+};
+exports.fromGenius = fromGenius;
+const ksrt = {
+    KSRT,
+    parse: exports.parse,
+    stringify: exports.stringify
+};
+exports.default = ksrt;

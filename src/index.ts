@@ -177,4 +177,50 @@ export const parse = (src: string): KSRT => new KSRT(src);
  */
 export const stringify = (ksrt: KSRT): string => ksrt.stringify();
 
-export default { KSRT, parse, stringify };
+/**
+ * Create KSRT from Genius lyrics format
+ * @param geniusLyrics Genius lyrics string
+ * @returns {KSRT}
+ */
+export const fromGenius = (geniusLyrics: string): KSRT => {
+    // Create empty KSRT
+    const res = new KSRT();
+
+    // Separate lines
+    const lyricLines = geniusLyrics.split(/\n/gim);
+
+    // Iterate over the lines
+    for (let [index, lyricLine] of lyricLines.entries()) {
+
+        // Skip if starts with [ (annotation) or doesn't have text
+        if (
+            lyricLine.startsWith("[") ||
+            !lyricLine.match(/./gim)
+        ) continue;
+
+        // Add the data to the KSRT
+        res.add({
+            id: index,
+            text: lyricLine,
+            startTime: "00:00:00,00",
+            endTime: "00:00:00,00",
+            data: {},
+            annotations: {
+                // Add Genius part annotation if existing
+                ...(lyricLines[index - 1].startsWith("[") ? {
+                    part: lyricLines[index - 1].replace(/^\[|\]$/gi, "").toLowerCase() as never
+                } : {})
+            }
+        });
+    };
+
+    // Return KSRT
+    return res;
+};
+
+const ksrt = {
+    KSRT,
+    parse,
+    stringify
+};
+export default ksrt;
