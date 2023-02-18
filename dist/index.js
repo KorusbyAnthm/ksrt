@@ -137,7 +137,7 @@ const fromGenius = (geniusLyrics) => {
             startTime: "00:00:00,00",
             endTime: "00:00:00,00",
             data: {},
-            annotations: Object.assign({}, (lyricLines[index - 1].startsWith("[") ? {
+            annotations: Object.assign({}, (typeof lyricLines[index - 1] === "string" && lyricLines[index - 1].startsWith("[") ? {
                 part: lyricLines[index - 1].replace(/^\[|\]$/gi, "").toLowerCase()
             } : {}))
         });
