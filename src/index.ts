@@ -1,9 +1,3 @@
-// SRT Validator
-import srtValidator from "srt-validator/dist/index";
-import ParseError from "srt-validator/src/utils/parse-error";
-import ValidationError from "srt-validator/src/utils/validation-error";
-
-// SRT Parser
 import * as srtParser from "srtparsejs";
 import { KSRTArray } from './types';
 
@@ -31,7 +25,6 @@ export class KSRT {
     player: srtParser.srtPlayer;
 
     options = defaultKSRTOptions;
-    errors: (ParseError | ValidationError)[] = [];
 
     constructor(src?: string, options?: typeof defaultKSRTOptions) {
         // Set the options and src string

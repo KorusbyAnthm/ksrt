@@ -1,5 +1,3 @@
-import ParseError from "srt-validator/src/utils/parse-error";
-import ValidationError from "srt-validator/src/utils/validation-error";
 import * as srtParser from "srtparsejs";
 import { KSRTArray } from './types';
 declare const defaultKSRTOptions: {
@@ -13,7 +11,6 @@ export declare class KSRT {
     options: {
         removeComments: boolean;
     };
-    errors: (ParseError | ValidationError)[];
     constructor(src?: string, options?: typeof defaultKSRTOptions);
     add(...ksrt: KSRTArray[]): KSRTArray[];
     parse(src?: string): void;

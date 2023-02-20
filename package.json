@@ -1,10 +1,10 @@
 {
   "name": "@korusbyanthm/ksrt",
-  "version": "0.3.5",
+  "version": "0.4.5",
   "description": "KSRT file parser",
   "main": "dist/index.js",
   "scripts": {
-    
+    "up": "tsc && npm publish"
   },
   "keywords": [
     "srt",
@@ -18,13 +18,11 @@
   "author": "Ramon from Anthm",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@types/node": "^18.11.18",
     "@types/srtparsejs": "^1.0.0",
     "typescript": "^4.9.4"
   },
   "dependencies": {
     "@korusbyanthm/regex": "latest",
-    "srt-validator": "^6.0.3",
     "srtparsejs": "^1.0.8"
   }
 }

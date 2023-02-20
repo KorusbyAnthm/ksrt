@@ -38,7 +38,6 @@ class KSRT {
         this.srtArray = [];
         this.ksrtData = [];
         this.options = defaultKSRTOptions;
-        this.errors = [];
         this.options = Object.assign(Object.assign({}, this.options), options);
         this.src = src;
         src && this.parse();
