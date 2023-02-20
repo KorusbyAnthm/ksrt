@@ -182,6 +182,8 @@ export const fromGenius = (geniusLyrics: string): KSRT => {
     // Separate lines
     const lyricLines = geniusLyrics.split(/\n/gim);
 
+    const singers = [];
+
     // Iterate over the lines
     for (let [index, lyricLine] of lyricLines.entries()) {
 
@@ -200,9 +202,31 @@ export const fromGenius = (geniusLyrics: string): KSRT => {
             data: {},
             annotations: {
                 // Add Genius part annotation if existing
-                ...(typeof lyricLines[index - 1] === "string" && lyricLines[index - 1].startsWith("[") ? {
-                    part: lyricLines[index - 1].replace(/^\[|\]$/gi, "").toLowerCase() as never
-                } : {})
+                ...(function() {
+                    // If there is a lyric line
+                    if (
+                        typeof lyricLines[index - 1] === "string" && 
+                        lyricLines[index - 1].startsWith("[")
+                    ) {
+                        // Get the part and possible artist
+                        const [part, singer] = lyricLines[index - 1].replace(/^\[|\]$/gi, "").split(": ", 2);
+
+                        // Add the singer to the singers array if it doesn't exist
+                        !singers.includes(singer) ? singers.push(singer) : void 0;
+
+                        return {
+                            annotations: {
+                                part: part.toLowerCase(),
+                                singer: [
+                                    singers.indexOf(singer),
+                                ]
+                            }
+                        } as KSRTArray;
+                    }
+
+                    // Return empty object if no part
+                    return {};
+                }())
             }
         });
     };

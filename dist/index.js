@@ -126,6 +126,7 @@ exports.stringify = stringify;
 const fromGenius = (geniusLyrics) => {
     const res = new KSRT();
     const lyricLines = geniusLyrics.split(/\n/gim);
+    const singers = [];
     for (let [index, lyricLine] of lyricLines.entries()) {
         if (lyricLine.startsWith("[") ||
             !lyricLine.match(/./gim))
@@ -136,9 +137,22 @@ const fromGenius = (geniusLyrics) => {
             startTime: "00:00:00,00",
             endTime: "00:00:00,00",
             data: {},
-            annotations: Object.assign({}, (typeof lyricLines[index - 1] === "string" && lyricLines[index - 1].startsWith("[") ? {
-                part: lyricLines[index - 1].replace(/^\[|\]$/gi, "").toLowerCase()
-            } : {}))
+            annotations: Object.assign({}, (function () {
+                if (typeof lyricLines[index - 1] === "string" &&
+                    lyricLines[index - 1].startsWith("[")) {
+                    const [part, singer] = lyricLines[index - 1].replace(/^\[|\]$/gi, "").split(": ", 2);
+                    !singers.includes(singer) ? singers.push(singer) : void 0;
+                    return {
+                        annotations: {
+                            part: part.toLowerCase(),
+                            singer: [
+                                singers.indexOf(singer),
+                            ]
+                        }
+                    };
+                }
+                return {};
+            }()))
         });
     }
     ;
